@@ -58,3 +58,9 @@ htmlcov/
 
 # Migration files (optional - uncomment if you want to ignore)
 # migrations/
+
+# Arquivos de macro (não relacionados ao projeto principal)
+macro_*.py
+titi*.py
+titi.py
+MACRO_README.md

@@ -128,15 +128,53 @@ def test_update_task_not_found(client):
 #    - Marcar tarefa como concluída
 #    - Verificar que completed=True
 #
+def test_complete_task(client):
+    # Criar uma tarefa primeiro
+    response = client.post('/api/tasks/', json={'title': 'Task to complete'})
+    assert response.status_code == 201
+    task_id = response.get_json()['id']
+    
+    # Marcar como concluída
+    response = client.patch(f'/api/tasks/{task_id}/complete')
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data['completed'] is True
+
+
+
 # 6. DELETAR TAREFA:
 #    - Deletar tarefa existente
 #    - Verificar que foi removida
 #    - Deletar tarefa inexistente (404)
 #
+
+def test_delete_task_not_found(client):
+    response = client.delete('/api/tasks/999')
+    assert response.status_code == 404
+    assert 'error' in response.get_json()
+
+
 # 7. ESTATÍSTICAS:
 #    - Verificar contadores
 #    - Verificar contagem por prioridade
 #
+
+def test_task_statistics(client):
+    # Criar algumas tarefas
+    client.post('/api/tasks/', json={'title': 'Task 1', 'priority': 'low'})
+    client.post('/api/tasks/', json={'title': 'Task 2', 'priority': 'high'})
+    client.post('/api/tasks/', json={'title': 'Task 3', 'priority': 'medium'})
+    
+    # Obter estatísticas
+    response = client.get('/api/tasks/stats')
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data['total'] == 3
+    assert data['by_priority']['low'] == 1
+    assert data['by_priority']['medium'] == 1
+    assert data['by_priority']['high'] == 1
+
+
 # 8. CENÁRIOS COMPLEXOS (End-to-End):
 #    - Criar → Listar → Atualizar → Completar → Deletar
 #    - Criar várias tarefas e filtrar
